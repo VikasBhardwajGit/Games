@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talking Robot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .robot {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .robot-head {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 20px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .robot-eyes {
+            display: flex;
+            justify-content: space-between;
+            padding: 25px 20px 0;
+        }
+
+        .eye {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            position: relative;
+            animation: blink 3s infinite;
+        }
+
+        .eye::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+            top: 6px;
+            left: 6px;
+        }
+
+        .robot-mouth {
+            width: 40px;
+            height: 20px;
+            background: #333;
+            border-radius: 0 0 20px 20px;
+            margin: 10px auto;
+            transition: all 0.3s ease;
+        }
+
+        .robot-body {
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 10px;
+            margin: 10px auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .robot.talking .robot-mouth {
+            animation: talk 0.3s ease-in-out infinite;
+        }
+
+        .robot.listening .robot-head {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(79, 172, 254, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.listening {
+            background: linear-gradient(145deg, #4facfe, #00f2fe);
+            animation: pulse 1s infinite;
+        }
+
+        .chat-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 120px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .user-message {
+            background: rgba(79, 172, 254, 0.3);
+            margin-left: 20px;
+        }
+
+        .robot-message {
+            background: rgba(255, 255, 255, 0.2);
+            margin-right: 20px;
+        }
+
+        .status {
+            margin: 15px 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { height: 20px; }
+            95% { height: 2px; }
+        }
+
+        @keyframes talk {
+            0%, 100% { height: 20px; border-radius: 0 0 20px 20px; }
+            50% { height: 10px; border-radius: 0 0 10px 10px; }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(79, 172, 254, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(79, 172, 254, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 172, 254, 0); }
+        }
+
+        .warning {
+            color: #ffeb3b;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Talking Robot</h1>
+        
+        <div class="robot" id="robot">
+            <div class="robot-head">
+                <div class="robot-eyes">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
+                </div>
+                <div class="robot-mouth"></div>
+            </div>
+            <div class="robot-body"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="listenBtn">🎤 Talk to Robot</button>
+            <button class="btn" id="stopBtn" style="display: none;">⏹️ Stop</button>
+        </div>
+
+        <div class="status" id="status">Click "Talk to Robot" to start a conversation!</div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="message robot-message">
+                <strong>Robot:</strong> Hello! I'm your talking robot assistant. Click the microphone button and say something to me!
+            </div>
+        </div>
+
+        <div class="warning">
+            ⚠️ This app requires microphone permissions and works best in Chrome/Edge browsers.
+        </div>
+    </div>
+
+    <script>
+        class TalkingRobot {
+            constructor() {
+                this.recognition = null;
+                this.synthesis = window.speechSynthesis;
+                this.isListening = false;
+                this.robot = document.getElementById('robot');
+                this.listenBtn = document.getElementById('listenBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.status = document.getElementById('status');
+                this.chatArea = document.getElementById('chatArea');
+
+                this.responses = {
+                    greetings: ["Hello there! How are you today?", "Hi! Nice to meet you!", "Greetings, human friend!"],
+                    name: ["I'm your friendly talking robot!", "You can call me RoboBot!", "I'm an AI robot here to chat with you!"],
+                    time: [`The current time is ${new Date().toLocaleTimeString()}`],
+                    weather: ["I can't check the weather, but I hope it's nice where you are!", "Weather data is not in my circuits, sorry!"],
+                    jokes: [
+                        "Why don't robots ever panic? Because they have nerves of steel!",
+                        "What do you call a robot who takes the long way around? R2-Detour!",
+                        "Why was the robot angry? Someone kept pushing its buttons!"
+                    ],
+                    compliments: ["You have a lovely voice!", "You seem very intelligent!", "I enjoy talking with you!"],
+                    goodbye: ["Goodbye! It was nice chatting with you!", "See you later! Have a great day!", "Farewell, my human friend!"],
+                    default: [
+                        "That's interesting! Tell me more.",
+                        "I see! Thanks for sharing that with me.",
+                        "Fascinating! I'm learning so much from you.",
+                        "Can you tell me more about that?",
+                        "That sounds really cool!",
+                        "I'm processing that information in my robot brain!"
+                    ]
+                };
+
+                this.initSpeechRecognition();
+                this.setupEventListeners();
+            }
+
+            initSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    this.recognition = new webkitSpeechRecognition();
+                } else if ('SpeechRecognition' in window) {
+                    this.recognition = new SpeechRecognition();
+                } else {
+                    this.status.textContent = 'Speech recognition not supported in this browser.';
+                    return;
+                }
+
+                this.recognition.continuous = false;
+                this.recognition.interimResults = false;
+                this.recognition.lang = 'en-US';
+
+                this.recognition.onstart = () => {
+                    this.isListening = true;
+                    this.robot.classList.add('listening');
+                    this.status.textContent = 'Listening... Speak now!';
+                    this.listenBtn.classList.add('listening');
+                    this.listenBtn.style.display = 'none';
+                    this.stopBtn.style.display = 'inline-block';
+                };
+
+                this.recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    this.addMessage('user', transcript);
+                    this.processUserInput(transcript);
+                };
+
+                this.recognition.onerror = (event) => {
+                    this.status.textContent = `Speech recognition error: ${event.error}`;
+                    this.stopListening();
+                };
+
+                this.recognition.onend = () => {
+                    this.stopListening();
+                };
+            }
+
+            setupEventListeners() {
+                this.listenBtn.addEventListener('click', () => this.startListening());
+                this.stopBtn.addEventListener('click', () => this.stopListening());
+            }
+
+            startListening() {
+                if (this.recognition && !this.isListening) {
+                    this.recognition.start();
+                }
+            }
+
+            stopListening() {
+                if (this.recognition && this.isListening) {
+                    this.recognition.stop();
+                }
+                this.isListening = false;
+                this.robot.classList.remove('listening');
+                this.status.textContent = 'Click "Talk to Robot" to speak again!';
+                this.listenBtn.classList.remove('listening');
+                this.listenBtn.style.display = 'inline-block';
+                this.stopBtn.style.display = 'none';
+            }
+
+            processUserInput(input) {
+                const lowerInput = input.toLowerCase();
+                let response;
+
+                if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('hey')) {
+                    response = this.getRandomResponse('greetings');
+                } else if (lowerInput.includes('name') || lowerInput.includes('who are you')) {
+                    response = this.getRandomResponse('name');
+                } else if (lowerInput.includes('time')) {
+                    response = this.getRandomResponse('time');
+                } else if (lowerInput.includes('weather')) {
+                    response = this.getRandomResponse('weather');
+                } else if (lowerInput.includes('joke') || lowerInput.includes('funny')) {
+                    response = this.getRandomResponse('jokes');
+                } else if (lowerInput.includes('beautiful') || lowerInput.includes('smart') || lowerInput.includes('cool')) {
+                    response = this.getRandomResponse('compliments');
+                } else if (lowerInput.includes('bye') || lowerInput.includes('goodbye') || lowerInput.includes('see you')) {
+                    response = this.getRandomResponse('goodbye');
+                } else {
+                    response = this.getRandomResponse('default');
+                }
+
+                this.addMessage('robot', response);
+                this.speak(response);
+            }
+
+            getRandomResponse(category) {
+                const responses = this.responses[category];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            speak(text) {
+                if (this.synthesis.speaking) {
+                    this.synthesis.cancel();
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.volume = 0.8;
+
+                utterance.onstart = () => {
+                    this.robot.classList.add('talking');
+                    this.status.textContent = 'Robot is speaking...';
+                };
+
+                utterance.onend = () => {
+                    this.robot.classList.remove('talking');
+                    this.status.textContent = 'Click "Talk to Robot" to continue the conversation!';
+                };
+
+                this.synthesis.speak(utterance);
+            }
+
+            addMessage(sender, message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'Robot'}:</strong> ${message}`;
+                this.chatArea.appendChild(messageDiv);
+                this.chatArea.scrollTop = this.chatArea.scrollHeight;
+            }
+        }
+
+        // Initialize the talking robot when the page loads
+        window.addEventListener('load', () => {
+            new TalkingRobot();
+        });
+    </script>
+</body>
+</html>
